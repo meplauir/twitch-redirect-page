@@ -45,13 +45,12 @@
         watch: {
         },
         mounted: function () {
-          this.code = this.getUrlParameter("code");
-          console.log(this.code);
-          if (this.getUrlParameter("error") == null && this.code != null) {
+          const access_token = this.getUrlParameter("access_token");
+          if (this.getUrlParameter("error") == null && access_token != null) {
             const json = {
-              access_token: this.code,
+              access_token: access_token,
               scope: this.getUrlParameter("scope"),
-              state: this.getUrlParameter("state")
+              token_type: this.getUrlParameter("token_type")
             };
             const blob = new Blob([JSON.stringify(json)], {type: 'application\/json'});
             this.link = URL.createObjectURL(blob);
@@ -60,10 +59,13 @@
         },
         methods: {
           getUrlParameter(name) {
-            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-            var results = regex.exec(location.search);
-            return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, ' '));
+            const url = window.location.href.replace('#access_token', '?access_token');
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
           }
         }
       });
