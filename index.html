@@ -1,0 +1,72 @@
+<html lang="ja">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta charset="UTF-8">
+    <title>Twitch設定値取得用</title>
+    <link rel="icon" type="image/x-icon" href="./img/favicon.ico">
+      <!-- Font Awesome -->
+    <link type="text/css" rel="stylesheet" href="./libs/font-awesome@6.0.0/css/all.min.css" />
+    <!-- Vue+Bootstrap -->
+    <link type="text/css" rel="stylesheet" href="./libs/bootstrap@4.6.1/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href="./libs/bootstrap-vue@2.19.0/bootstrap-vue.min.css" />
+    <script src="./libs/vue@2.6.14/vue.min.js"></script>
+    <script src="./libs/babel-polyfill@7.4.4/polyfill.min.js"></script>
+    <script src="./libs/bootstrap-vue@2.19.0/bootstrap-vue.min.js"></script>
+    <script src="./libs/axios@0.25.0/axios.min.js"></script>
+    <!-- Design -->
+    <link href="./css/design.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="app">
+      <b-row>
+        <b-col class="text-center pt-5">
+          <b-button variant="primary" :href="link" download="twitch_config.json" :disabled="btn_disabled">
+            Twitch設定値のダウンロード
+          </b-button>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="text-center pt-1 small text-danger" v-if="btn_disabled">
+          Twitchとの連携に失敗してるかも…？
+        </b-col>
+      </b-row>
+    </div>
+    <script>
+      var app = new Vue({
+        el: "#app",
+        data: {
+          link: "#",
+          btn_disabled: true,
+        },
+        created: function () {
+        },
+        computed: {
+        },
+        watch: {
+        },
+        mounted: function () {
+          this.code = this.getUrlParameter("code");
+          console.log(this.code);
+          if (this.getUrlParameter("error") == null && this.code != null) {
+            const json = {
+              access_token: this.code,
+              scope: this.getUrlParameter("scope"),
+              state: this.getUrlParameter("state")
+            };
+            const blob = new Blob([JSON.stringify(json)], {type: 'application\/json'});
+            this.link = URL.createObjectURL(blob);
+            this.btn_disabled = false;
+          }
+        },
+        methods: {
+          getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, ' '));
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
